@@ -20,7 +20,7 @@ string reserved[] = { "END_OF_FILE",
     "EQUAL", "COLON", "COMMA", "SEMICOLON",
     "LBRAC", "RBRAC", "LPAREN", "RPAREN",
     "NOTEQUAL", "GREATER", "LESS", "LTEQ", "GTEQ",
-    "DOT", "NUM", "ID", "ERROR", "BASE08NUM", "BASE16NUM", "REALNUM" // TODO: Add labels for new token types here (as string)
+    "DOT", "NUM", "ID", "ERROR", "BASE08NUM", "BASE16NUM", "REALNUM" //DONE: Add labels for new token types here (as string)
 };
 
 #define KEYWORDS_COUNT 5
