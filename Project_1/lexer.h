@@ -10,7 +10,7 @@
 #include <string>
 
 #include "inputbuf.h"
-
+#include "stack.h"
 // ------- token types -------------------
 
 typedef enum { END_OF_FILE = 0,

@@ -11,6 +11,7 @@
 
 #include "lexer.h"
 #include "inputbuf.h"
+#include "stack.h"
 
 using namespace std;
 
@@ -107,101 +108,11 @@ Token LexicalAnalyzer::ScanNumber()
 	
 	//REALNUM = NUM DOT digit digit*
 	string tempStr = ""; //Temporary string created to store the input
-	bool check = false;
+	
+
 
 	input.GetChar(c); //get the input
-	if (c.token_type == DOT)
-	{
-		tempStr += c; //puts the DOT in the string
-		input.GetChar(c); //get next input
-	
-		while (!input.EndOfInput() && isdigit(c)) //if the input is a digit
-		{
-			tempStr += c;
-			input.GetChar(c);
-		}
-		if(!input.EndOfInput()) //if there is still input left, spit out the last thing that was taken in
-		{
-			input.UngetChar(c);
-		}
-		tmp.lexeme += tempStr;
-		tmp.token_type = REALNUM;
-		tmp.line_no = line_no;
-		return tmp;
-	}
-	else if (c == 'x')
-	{
-		tempStr += c; //add x to the string
-		input.GetChar(c);
 
-		//BASE08 = ((pdigit8 digit8*) + 0) (x) (08)
-		if (c == '0')
-		{
-			tempStr += c; //add 0 to the string
-			input.GetChar(c);
-			if(c == '8')
-			{
-				tempStr += c; //add 8 to the string
-				for (int i = 0; i < tmp.lexeme.length(); i++)
-				{
-					if (tmp.lexeme.at(i) == '8' || tmp.lexeme.at(i) == '9') //NOT BASE 8
-					{
-						check = false;
-					}
-				}
-				if (check == false)
-				{
-					//TODO: pop 08, check if BASE16
-					check = true;
-				}
-				else
-				{
-					tmp.lexeme += tempStr;
-					tmp.token_type = BASE08NUM;
-					tmp.line_no = line_no;
-					return tmp;
-				}
-				
-			}
-			else
-			{
-				//TODO: pop 0
-			}
-		}
-
-		//BASE16 = ((pdigit16 digit16*) + 0) (x) (08)
-		else if (c == '1')
-		{
-			tempStr += c; //add 1 to the string
-			input.GetChar(c);
-			if(c == '6')
-			{
-				tempStr += c; //add 6 to the string
-				for (int i = 1; i < tmp.lexeme.length(); i++)
-				{
-					if (tmp.lexeme.at(i) < 0 || tmp.lexeme.at(i) >= 'F') //not BASE16
-					{
-						check = false;
-					}
-				}
-				if (check == false)
-				{
-					//TODO: pop x16
-				}
-				else
-				{
-					tmp.lexeme += tempStr;
-					tmp.token_type = BASE16NUM;
-					tmp.line_no = line_no;
-					return tmp;
-				}
-			}
-			else
-			{
-				//TODO: pop 16
-			}
-		}
-	}
 	input.UngetChar(c);
 	//either have an x, DOT, or nothing
         //nothing == NUM
