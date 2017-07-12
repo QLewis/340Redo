@@ -107,17 +107,35 @@ Token LexicalAnalyzer::ScanNumber()
         // TODO: You can check for REALNUM, BASE08NUM and BASE16NUM here!
 	
 	//REALNUM = NUM DOT digit digit*
-	string tempStr = ""; //Temporary string created to store the input
-	
-
-
 	input.GetChar(c); //get the input
+	if (c == 'x' || c == '.' || (c >= 'A' && c <= 'F'))
+	{
+		buffer.push(c); //place onto stack
+		if (c == 'x') //BASE08 or BASE16
+		{
+			//TODO: check if next is '0' or '1'
+			input.GetChar(c);
+			if (c == '0')
+		}
+		else if (c == '.')
+		{
+			//TODO: check if next is num > 0
+		}
+		else
+		{
+			//TODO: check if next is 'x'
+		}
+	}
+	else //TODO: Double check that this else is needed
+	{
+		input.UngetChar(c);	
+	}
+	//either have an x, DOT, or nothing
+	//nothing == NUM (given code takes care of that)
+	//x == base8 or base16 or none
+	//DOT means REALNUM or none
 
 	input.UngetChar(c);
-	//either have an x, DOT, or nothing
-        //nothing == NUM
-        //x == base8 or base16 or none
-        //DOT means REALNUM or none
 	tmp.token_type = NUM;
         tmp.line_no = line_no;
         return tmp;

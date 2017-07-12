@@ -36,7 +36,7 @@ class LexicalAnalyzer {
     Token GetToken();
     TokenType UngetToken(Token);
     LexicalAnalyzer();
-
+    stack buffer;
   private:
     std::vector<Token> tokens;
     int line_no;
