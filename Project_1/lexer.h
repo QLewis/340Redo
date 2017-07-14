@@ -36,12 +36,13 @@ class LexicalAnalyzer {
     Token GetToken();
     TokenType UngetToken(Token);
     LexicalAnalyzer();
-    stack buffer;
+    //stack buffer
   private:
     std::vector<Token> tokens;
     int line_no;
     Token tmp;
     InputBuffer input;
+    stack buffer;
 
     bool SkipSpace();
     bool IsKeyword(std::string);

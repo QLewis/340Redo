@@ -85,7 +85,6 @@ TokenType LexicalAnalyzer::FindKeywordIndex(string s)
 Token LexicalAnalyzer::ScanNumber()
 {
     char c;
-
     input.GetChar(c);
     if (isdigit(c)) {
         if (c == '0') {
@@ -106,7 +105,6 @@ Token LexicalAnalyzer::ScanNumber()
 
         // TODO: You can check for REALNUM, BASE08NUM and BASE16NUM here!
 	
-	//REALNUM = NUM DOT digit digit*
 	input.GetChar(c); //get the input
 	if (c == 'x' || c == '.' || (c >= 'A' && c <= 'F'))
 	{
@@ -115,14 +113,64 @@ Token LexicalAnalyzer::ScanNumber()
 		{
 			//TODO: check if next is '0' or '1'
 			input.GetChar(c);
-			if (c == '0')
+            //BASE08NUM = ((pdigit8 digit8*) + 0) x 08
+			if (c == '0') //x0
+			{
+				buffer.push(c); //puts c on the stack
+				input.GetChar(c);
+				if (c == '8') //x08
+				{
+					buffer.push(c);
+					tmp.lexeme += buffer.toString();
+					tmp.token_type = BASE08NUM;
+					tmp.line_no = line_no;
+					return tmp;
+				}
+                else //x0__
+                {
+                    while (buffer.isEmpty() == false)
+                    {
+                        buffer.pop();
+                        //TODO: might have to do NUM here
+                    }
+                }
+			}
+            //BASE16NUM = ((pdigit16 digit16*) + 0) x 16
+			else if (c == '1') //x1
+			{
+				buffer.push(c);
+				input.GetChar(c);
+				if (c == '6') //x16
+				{
+					buffer.push(c);
+					tmp.lexeme += buffer.toString();
+					tmp.token_type = BASE16NUM;
+					tmp.line_no = line_no;
+					return tmp;
+				}
+                else //x1__
+                {
+                    while (buffer.isEmpty() == false)
+                    {
+                        buffer.pop();
+                    }
+                }
+			}
+            else //x___
+            {
+                while (buffer.isEmpty() == false)
+                {
+                    buffer.pop();
+                }
+                //TODO: might need NUM here
+            }
 		}
 		//REALNUM = NUM DOT digit digit*
-		else if (c == '.')
+		else if (c.token_type == DOT) //might need to change to == '.'
 		{
 			//TODO: check if next is num > 0
-			buffer.push(c);
-			input.GetChar(c);
+			buffer.push(c); //push . to stack
+			input.GetChar(c); //get next character
 
 			while (!input.EndOfInput() && isdigit(c))
 			{
@@ -133,15 +181,15 @@ Token LexicalAnalyzer::ScanNumber()
 			{
 				input.UngetChar(c);
 			}
+			tmp.lexeme += buffer.toString();
+			tmp.token_type = REALNUM;
+			tmp.line_no = line_no;
+			return tmp;
 		}
-		else
+		/*else
 		{
 			//TODO: check if next is 'x'
-		}
-	}
-	else //TODO: Double check that this else is needed
-	{
-		input.UngetChar(c);	
+		}*/
 	}
 	//either have an x, DOT, or nothing
 	//nothing == NUM (given code takes care of that)
