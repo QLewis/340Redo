@@ -12,17 +12,17 @@ void stack::push(char insert)
 		top++;
 		array[top] = insert;
 	}
-	else
+	/*else
 	{
 		cout << "The stack is full\n" << endl;
-	}
+	}*/
 }
 
 char stack::pop()
 {
 	if (top == -1)
 	{
-		cout << "The stack is empty\n" << endl;
+		//cout << "The stack is empty\n" << endl;
 		return NULL;
 	}
 	else
@@ -55,7 +55,7 @@ bool stack::isEmpty()
 {
 	if (top == -1)
 	{
-		cout << "The stack is empty\n" << endl;
+		//cout << "The stack is empty\n" << endl;
 		return true;
 	}
 	else

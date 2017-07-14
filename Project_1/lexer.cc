@@ -166,7 +166,7 @@ Token LexicalAnalyzer::ScanNumber()
             }
 		}
 		//REALNUM = NUM DOT digit digit*
-		else if (c.token_type == DOT) //might need to change to == '.'
+		else if (c == '.') //might need to change to == '.'
 		{
 			//TODO: check if next is num > 0
 			buffer.push(c); //push . to stack
