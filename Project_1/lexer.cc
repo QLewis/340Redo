@@ -117,9 +117,22 @@ Token LexicalAnalyzer::ScanNumber()
 			input.GetChar(c);
 			if (c == '0')
 		}
+		//REALNUM = NUM DOT digit digit*
 		else if (c == '.')
 		{
 			//TODO: check if next is num > 0
+			buffer.push(c);
+			input.GetChar(c);
+
+			while (!input.EndOfInput() && isdigit(c))
+			{
+				buffer.push(c);
+				input.GetChar(c);
+			}
+			if(!input.EndOfInput())
+			{
+				input.UngetChar(c);
+			}
 		}
 		else
 		{
