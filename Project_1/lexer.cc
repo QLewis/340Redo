@@ -21,7 +21,7 @@ string reserved[] = { "END_OF_FILE",
     "EQUAL", "COLON", "COMMA", "SEMICOLON",
     "LBRAC", "RBRAC", "LPAREN", "RPAREN",
     "NOTEQUAL", "GREATER", "LESS", "LTEQ", "GTEQ",
-    "DOT", "NUM", "ID", "ERROR", "BASE08NUM", "BASE16NUM", "REALNUM" //DONE: Add labels for new token types here (as string)
+    "DOT", "NUM", "ID", "ERROR", "BASE08NUM", "BASE16NUM", "REALNUM" // DONE: Add labels for new token types here (as string)
 };
 
 #define KEYWORDS_COUNT 5
@@ -85,8 +85,10 @@ TokenType LexicalAnalyzer::FindKeywordIndex(string s)
 Token LexicalAnalyzer::ScanNumber()
 {
     char c;
+
     input.GetChar(c);
-    if (isdigit(c)) {
+    if (isdigit(c))
+    {
         if (c == '0') {
             tmp.lexeme = "0";
         } else {
@@ -99,132 +101,97 @@ Token LexicalAnalyzer::ScanNumber()
                 input.UngetChar(c);
             }
         }
-	//The above gets every number until there is a non-number input, then you start reading input again
-	//and check if it's an x or a DOT
-	//c is not being changed, it's just the input, the input is stored in tmp.lexeme	
-
         // TODO: You can check for REALNUM, BASE08NUM and BASE16NUM here!
-	
-	input.GetChar(c); //get the input
-	if (c == 'x' || c == '.' || (c >= 'A' && c <= 'F'))
-	{
-		buffer.push(c); //place c onto stack
-
-		if (c == 'x') //BASE08 or BASE16
-		{
-			//TODO: check if next is '0' or '1'
-			input.GetChar(c); //x goes onto stack
-
-            //BASE08NUM = ((pdigit8 digit8*) + 0) x 08
-			if (c == '0') //x0
-			{
-				buffer.push(c); //puts 0 onto stack
+        input.GetChar(c);
+        if (c == '.' || c == 'x' || (c >= 'A' || c <= 'F'))
+        {
+            buffer.push(c);
+            //REALNUM = NUM DOT digit digit*
+            if (c == '.')
+            {
                 input.GetChar(c);
-                if (c == '8') //x08
+                if (isalpha(c))
                 {
-                    //buffer.push(c); //puts 8 onto stack
-
-                    //check the current number for 8 or 9, if yes pop entire stack else continue
-                    for (int i =  0; i < tmp.lexeme.size(); i++)
-                    {
-                        if (tmp.lexeme[i] == '8' || tmp.lexeme[i] == '9') //empty the stack, 8 or 9 can't be in base 8
-                        {
-                            input.UngetChar(c); //returns 8
-                            char peek = buffer.pop(); //pops 0
-
-                            while (buffer.isEmpty() == false)
-                            {
-                                input.UngetChar(peek);
-                                peek = buffer.pop();
-                            }
-
-
-                        }
-                    }
-                    if (buffer.isEmpty() == false) //the number didn't have 8 or 9 in it
+                    input.UngetChar(c); //unget the letter
+                    input.UngetChar(buffer.pop()); //unget the dot
+                }
+                else
+                {
+                    while (!input.EndOfInput() && isdigit(c))
                     {
                         buffer.push(c);
-                        tmp.lexeme += buffer.toString();
-                        tmp.token_type = BASE08NUM;
-                        tmp.line_no = line_no;
-                        return tmp;
+                        input.GetChar(c);
                     }
+                    if (!input.EndOfInput())
+                    {
+                        input.UngetChar(c);
+                    }
+                    tmp.lexeme += buffer.toString();
+                    tmp.token_type = REALNUM;
+                    tmp.line_no = line_no;
+                    return tmp;
                 }
-                else //x0__
-                {  
-                    input.UngetChar(c);
-                    char peek = buffer.pop();
 
-                    while (buffer.isEmpty() == false)
-                    {
-                        input.UngetChar(peek);
-                        peek = buffer.pop();
-                    }
-                }
             }
-            //BASE16NUM = ((pdigit16 digit16*) + 0) x 16
-			else if (c == '1') //x1
-			{
-				buffer.push(c);
-				input.GetChar(c);
-				if (c == '6') //x16
-				{
-					buffer.push(c);
-					tmp.lexeme += buffer.toString();
-					tmp.token_type = BASE16NUM;
-					tmp.line_no = line_no;
-					return tmp;
-				}
-                else //x1__
-                {
-                    while (buffer.isEmpty() == false)
-                    {
-                        buffer.pop();
-                    }
-                }
-			}
-            else //x___
+            else if (c == 'x')
             {
-                while (buffer.isEmpty() == false)
+                input.GetChar(c);
+                if (c == '0') //x0
                 {
-                    buffer.pop();
+                    buffer.push(c); //puts 0 on the stack
+
+                    input.GetChar(c);
+
+                    if (c == '8') //x08
+                    {
+                        buffer.push(c); //puts 8 on the stack
+
+                        //check the lexeme for 8, 9, or alphas
+                        for (int i = 0; i < tmp.lexeme.size(); i++)
+                        {
+                            if (tmp.lexeme[i] > '7')
+                            {
+                                while (buffer.isEmpty() == false)
+                                {
+                                    input.UngetChar(buffer.pop());
+                                }
+                            }
+                        }
+
+                        /*if ((tmp.lexeme.size() > 1) && (tmp.lexeme[0] == '0') && (tmp.lexeme[1] != 'x'))
+                        {
+                            while (buffer.isEmpty() == false)
+                            {
+                                input.UngetChar(buffer.pop());
+                            }
+                        }*/
+
+                        if (buffer.isEmpty() == false)
+                        {
+                            tmp.lexeme += buffer.toString();
+                            tmp.token_type = BASE08NUM;
+                            tmp.line_no = line_no;
+                            return tmp;
+                        }
+                    }
+                    else //x0__
+                    {
+                        input.UngetChar(c); //unget the character
+                        input.UngetChar(buffer.pop()); //ungets 0
+                        input.UngetChar(buffer.pop()); //ungets x
+                    }
                 }
-                //TODO: might need NUM here
+                //else if (c == '1') //x1
+                else //x__
+                {
+                    input.UngetChar(c);
+                    input.UngetChar(buffer.pop()); //unget x
+                }
             }
-		}
-		//REALNUM = NUM DOT digit digit*
-		else if (c == '.') //might need to change to == '.'
-		{
-			//TODO: check if next is num > 0
-			buffer.push(c); //push . to stack
-			input.GetChar(c); //get next character
-
-			while (!input.EndOfInput() && isdigit(c))
-			{
-				buffer.push(c);
-				input.GetChar(c);
-			}
-			if(!input.EndOfInput())
-			{
-				input.UngetChar(c);
-			}
-			tmp.lexeme += buffer.toString();
-			tmp.token_type = REALNUM;
-			tmp.line_no = line_no;
-			return tmp;
-		}
-		/*else
-		{
-			//TODO: check if next is 'x'
-		}*/
-	}
-	//either have an x, DOT, or nothing
-	//nothing == NUM (given code takes care of that)
-	//x == base8 or base16 or none
-	//DOT means REALNUM or none
-
-	input.UngetChar(c);
-	tmp.token_type = NUM;
+        }
+        //input.UngetChar(c);
+        //Instructor's code restarts here
+        tmp.token_type = NUM;
         tmp.line_no = line_no;
         return tmp;
     } else {
