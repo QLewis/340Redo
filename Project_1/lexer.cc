@@ -103,7 +103,7 @@ Token LexicalAnalyzer::ScanNumber()
         }
         // TODO: You can check for REALNUM, BASE08NUM and BASE16NUM here!
         input.GetChar(c);
-        if (c == '.' || c == 'x' || (c >= 'A' || c <= 'F'))
+        if (c == '.' || c == 'x' || (c >= 'A' && c <= 'F'))
         {
             buffer.push(c);
             //REALNUM = NUM DOT digit digit*
@@ -158,17 +158,14 @@ Token LexicalAnalyzer::ScanNumber()
                             }
                         }
 
-                        /*if ((tmp.lexeme.size() > 1) && (tmp.lexeme[0] == '0') && (tmp.lexeme[1] != 'x'))
-                        {
-                            while (buffer.isEmpty() == false)
-                            {
-                                input.UngetChar(buffer.pop());
-                            }
-                        }*/
-
                         if (buffer.isEmpty() == false)
                         {
                             tmp.lexeme += buffer.toString();
+                            //empty the buffer
+                            buffer.pop(); //pops 8
+                            buffer.pop(); //pops 0
+                            buffer.pop(); //pops x
+
                             tmp.token_type = BASE08NUM;
                             tmp.line_no = line_no;
                             return tmp;
@@ -188,6 +185,10 @@ Token LexicalAnalyzer::ScanNumber()
                     input.UngetChar(buffer.pop()); //unget x
                 }
             }
+        }
+        else
+        {
+            input.UngetChar(c);
         }
         //input.UngetChar(c);
         //Instructor's code restarts here
