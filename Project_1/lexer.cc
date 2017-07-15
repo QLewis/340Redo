@@ -178,12 +178,96 @@ Token LexicalAnalyzer::ScanNumber()
                         input.UngetChar(buffer.pop()); //ungets x
                     }
                 }
-                //else if (c == '1') //x1
+                else if (c == '1') //x1
+                {
+                    buffer.push(c); //push 1 onto stack
+                    input.GetChar(c);
+                    if (c == '6') //x16
+                    {
+                        buffer.push('6'); //push 6 onto stack
+
+                        //NUMx16
+                        tmp.lexeme += buffer.toString();
+                        buffer.pop(); //pops 6
+                        buffer.pop(); //pops 1
+                        buffer.pop(); //pops x
+
+                        tmp.token_type = BASE16NUM;
+                        tmp.line_no = line_no;
+                        return tmp;    
+                    }
+                    else //x1_
+                    {
+                        input.UngetChar(c); //unget the latest character
+                        input.UngetChar(buffer.pop()); //unget x
+                    }
+                }
                 else //x__
                 {
                     input.UngetChar(c);
                     input.UngetChar(buffer.pop()); //unget x
                 }
+            }
+            else if (c >= 'A' && c <= 'F')
+            {
+                input.GetChar(c);
+
+                while (isdigit(c) || (c >= 'A' && c <= 'F'))
+                {
+                    buffer.push(c); //push c onto stack
+                    input.GetChar(c); //get next input
+                }
+
+                if (c == 'x')
+                {
+                    buffer.push(c); //push x onto stack
+                    input.GetChar(c);
+                    if (c == '1') //x1
+                    {
+                        buffer.push(c); //push 1 onto stack
+                        input.GetChar(c);
+                        if (c == '6') //x16
+                        {
+                            buffer.push(c); //push 6 onto stack;
+
+                            tmp.lexeme += buffer.toString();
+                            while (buffer.isEmpty() == false)
+                            {
+                                buffer.pop();
+                            }
+
+                            tmp.token_type = BASE16NUM;
+                            tmp.line_no = line_no;
+                            return tmp;
+                        }
+                        else //x1__
+                        {
+                            input.UngetChar(c); //unget the latest character
+                            while (buffer.isEmpty() == false)
+                            {
+                                input.UngetChar(buffer.pop());
+                            }
+                        }
+                    }
+                    else //x_
+                    {
+                        input.UngetChar(c); //unget the latest character
+                        while (buffer.isEmpty() == false)
+                        {
+                            input.UngetChar(buffer.pop());
+                        }
+                    }
+                }
+                else
+                {
+                    input.UngetChar(c); //unget the latest character
+
+                    while(buffer.isEmpty() == false)
+                    {
+                        input.UngetChar(buffer.pop());
+                    }
+                }
+
             }
         }
         else
