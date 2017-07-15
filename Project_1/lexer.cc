@@ -108,33 +108,60 @@ Token LexicalAnalyzer::ScanNumber()
 	input.GetChar(c); //get the input
 	if (c == 'x' || c == '.' || (c >= 'A' && c <= 'F'))
 	{
-		buffer.push(c); //place onto stack
+		buffer.push(c); //place c onto stack
+
 		if (c == 'x') //BASE08 or BASE16
 		{
 			//TODO: check if next is '0' or '1'
-			input.GetChar(c);
+			input.GetChar(c); //x goes onto stack
+
             //BASE08NUM = ((pdigit8 digit8*) + 0) x 08
 			if (c == '0') //x0
 			{
-				buffer.push(c); //puts c on the stack
-				input.GetChar(c);
-				if (c == '8') //x08
-				{
-					buffer.push(c);
-					tmp.lexeme += buffer.toString();
-					tmp.token_type = BASE08NUM;
-					tmp.line_no = line_no;
-					return tmp;
-				}
-                else //x0__
+				buffer.push(c); //puts 0 onto stack
+                input.GetChar(c);
+                if (c == '8') //x08
                 {
-                    while (buffer.isEmpty() == false)
+                    //buffer.push(c); //puts 8 onto stack
+
+                    //check the current number for 8 or 9, if yes pop entire stack else continue
+                    for (int i =  0; i < tmp.lexeme.size(); i++)
                     {
-                        buffer.pop();
-                        //TODO: might have to do NUM here
+                        if (tmp.lexeme[i] == '8' || tmp.lexeme[i] == '9') //empty the stack, 8 or 9 can't be in base 8
+                        {
+                            input.UngetChar(c); //returns 8
+                            char peek = buffer.pop(); //pops 0
+
+                            while (buffer.isEmpty() == false)
+                            {
+                                input.UngetChar(peek);
+                                peek = buffer.pop();
+                            }
+
+
+                        }
+                    }
+                    if (buffer.isEmpty() == false) //the number didn't have 8 or 9 in it
+                    {
+                        buffer.push(c);
+                        tmp.lexeme += buffer.toString();
+                        tmp.token_type = BASE08NUM;
+                        tmp.line_no = line_no;
+                        return tmp;
                     }
                 }
-			}
+                else //x0__
+                {  
+                    input.UngetChar(c);
+                    char peek = buffer.pop();
+
+                    while (buffer.isEmpty() == false)
+                    {
+                        input.UngetChar(peek);
+                        peek = buffer.pop();
+                    }
+                }
+            }
             //BASE16NUM = ((pdigit16 digit16*) + 0) x 16
 			else if (c == '1') //x1
 			{
