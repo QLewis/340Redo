@@ -127,6 +127,10 @@ Token LexicalAnalyzer::ScanNumber()
                         input.UngetChar(c);
                     }
                     tmp.lexeme += buffer.toString();
+                    while(buffer.isEmpty() == false)
+                    {
+                        buffer.pop();
+                    }
                     tmp.token_type = REALNUM;
                     tmp.line_no = line_no;
                     return tmp;
