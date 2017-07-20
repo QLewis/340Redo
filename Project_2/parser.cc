@@ -32,18 +32,58 @@ Token Parser::peek()
 void Parser::parse_program()
 {
 	//program --> global_vars scope
+	parse_global_vars();
+	parse_scope();
 }//end of parse_program
 
 void Parser::parse_global_vars();
 {
 	//global_vars --> epsilon
 	//global_vars --> var_list SEMICOLON
+	Token t = lexer.GetToken();
+	if (t.token_type == ID)
+	{
+		Token t2 = peek();
+		if (t2.token_type == COMMA) //var_list SEMICOLON
+		{
+			lexer.UngetToken(t);
+			parse_var_list();
+			expect(SEMICOLON);
+		}
+		else if (t2.token_type == LBRACE) //epsilon
+		{
+			lexer.UngetToken(t);
+		}
+		else
+		{
+			syntax_error();
+		}
+	}
+	else
+	{
+		syntax_error();
+	}
 }//end of parse_global_vars()
 
 void Parser::parse_var_list()
 {
 	//var_list --> ID
 	//var_list --> ID COMMA var_list
+	expect(ID);
+	Token t = peek();
+	if (t.token_type == COMMA) //ID COMMA var_list
+	{
+		expect(COMMA);
+		parse_var_list();
+	}
+	else if (t.token_type == SEMICOLON) //ID
+	{
+		//done
+	}
+	else
+	{
+		syntax_error();
+	}
 }//end of parse_var_list
 
 void Parser::parse_scope()
