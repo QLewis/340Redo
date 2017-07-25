@@ -42,10 +42,7 @@ class LexicalAnalyzer {
     stack buffer;
 
     bool SkipSpace();
-    bool IsKeyword(std::string);
-    TokenType FindKeywordIndex(std::string);
     Token ScanIdOrKeyword();
-    Token ScanNumber();
 };
 
 #endif  //__LEXER__H__
