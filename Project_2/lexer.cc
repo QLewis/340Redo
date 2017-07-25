@@ -36,7 +36,7 @@ LexicalAnalyzer::LexicalAnalyzer()
     tmp.token_type = ERROR;
 }
 
-//TODO: Add skipComment functionality
+//TODO: Add SkipComment functionality
 bool LexicalAnalyzer::SkipSpace()
 {
     char c;
@@ -57,8 +57,36 @@ bool LexicalAnalyzer::SkipSpace()
     return space_encountered;
 }
 
-//TODO: Check for Public and Private here
+bool LexicalAnalyzer::SkipComment()
+{
+    char c;
+    bool comment_encountered = false;
 
+    input.GetChar(c);
+    line_no += (c == '\n');
+
+    if (c == '/')
+    {
+        input.GetChar(c);
+        line_no += (c == '\n');
+        if (c == '/')
+        {
+            while (!input.EndOfInput() && (c != '\n'))
+            {
+                comment_encountered = true;
+                input.GetChar(c);
+                line_no += (c == '\n');
+            }
+        }
+    }
+    if (!input.EndOfInput())
+    {
+        input.UngetChar(c);
+    }
+    return comment_encountered;
+}
+
+//DONE: Check for Public and Private here
 Token LexicalAnalyzer::ScanIdOrKeyword()
 {
     char c;
@@ -133,6 +161,7 @@ Token LexicalAnalyzer::GetToken()
     }
 
     SkipSpace();
+    SkipComment();
     tmp.lexeme = "";
     tmp.line_no = line_no;
     input.GetChar(c);
