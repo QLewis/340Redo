@@ -42,6 +42,7 @@ class LexicalAnalyzer {
     stack buffer;
 
     bool SkipSpace();
+    bool SkipComment();
     Token ScanIdOrKeyword();
 };
 
