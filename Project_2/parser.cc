@@ -89,30 +89,138 @@ void Parser::parse_var_list()
 void Parser::parse_scope()
 {
 	//scope --> ID LBRACE public_vars private_vars stmt_list RBRACE
+	expect(ID);
+	expect(LBRACE);
+	Token t = peek();
+	if (t.token_type == PUBLIC)
+	{
+		parse_public_vars();
+		Token t2 = peek();
+		if (t2.token_type == PRIVATE)
+		{
+			parse_private_vars();
+			parse_stmt_list();
+			expect(RBRACE);
+		}
+		else if (t2.token_type == ID) //private went to epsilon
+		{
+			parse_stmt_list();
+			expect(RBRACE);
+		}
+		else
+		{
+			syntax_error();
+		}
+	}
+	else if (t.token_type == PRIVATE) //public went to epsilon
+	{
+		parse_private_vars();
+		parse_stmt_list();
+		expect(RBRACE);
+	}
+	else if (t.token_type == ID) //public and private went to epsilon
+	{
+		parse_stmt_list();
+		expect(RBRACE);
+	}
+	else
+	{
+		syntax_error();
+	}
 }//end of parse_scope
 
 void Parser::parse_public_vars()
 {
 	//public_vars --> epsilon
 	//public_vars --> PUBLIC COLON var_list SEMICOLON
+	Token t = peek();
+	if (t.token_type == PUBLIC) //public_vars --> PUBLIC COLON var_list SEMICOLON
+	{
+		expect(PUBLIC);
+		expect(COLON);
+		parse_var_list();
+		expect(SEMICOLON);
+	}
+	else if (t.token_type == PRIVATE || t.token_type == ID) //public_vars --> epsilon
+	{
+		//done
+	}
+	else
+	{
+		syntax_error();
+	}
 }//end of parse_public_vars
 
 void Parser::parse_private_vars()
 {
 	//private_vars --> epsilon
 	//private_vars --> PRIVATE COLON var_list SEMICOLON
+	Token t = peek();
+	if (t.token_type == PRIVATE) //private_vars --> PRIVATE COLON var_list SEMICOLON
+	{
+		expect(PRIVATE);
+		expect(COLON);
+		parse_var_list();
+		expect(SEMICOLON);
+	}
+	else if (t.token_type == ID) //private_vars --> epsilon
+	{
+		//done
+	}
+	else
+	{
+		syntax_error();
+	}
 }//end of parse_private_vars
 
 void Parser::parse_stmt_list()
 {
 	//stmt_list --> stmt
 	//stmt_list --> stmt stmt_list
+	parse_stmt();
+	Token t = peek();
+	if (t.token_type == RBRACE) //stmt_list --> stmt
+	{
+		//done
+	}
+	else if (t.token_type == ID) //stmt_list --> stmt stmt_list
+	{
+		parse_stmt_list();
+	}
+	else
+	{
+		syntax_error();
+	}
 }//end of parse_stmt_list
 
 void Parser::parse_stmt()
 {
 	//stmt --> ID EQUAL ID SEMICOLON
 	//stmt --> scope
+	Token t = lexer.GetToken();
+	if (t.token_type == ID)
+	{
+		token t2 = peek();
+		if (t2.token_type == EQUAL) //stmt --> ID EQUAL ID SEMICOLON
+		{
+			expect(EQUAL);
+			expect(ID);
+			expect(SEMICOLON);
+		}
+		else if (t2.token_type == LBRACE) //stmt --> scope
+		{
+			lexer.UngetToken(t);
+			parse_scope();
+		}
+		else
+		{
+			syntax_error();
+		}
+	}
+	else //FIRST(scope) == ID
+	{
+		syntax_error();
+	}
 }
 
 //END OF PARSING
