@@ -1,3 +1,9 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+
 struct symbolTable
 {
 	symbolTableItem* item;
@@ -17,18 +23,22 @@ class SymbolTable
 	private:
 		struct symbolTable* head;
 	public:
+		string currentScope;
 		SymbolTable();
-		addItem(char name, char scope, int permission);
+		addItem(char* name, char* scope, int permission);
 };
 
+
+//Constructor
 SymbolTable::SymbolTable()
 {
 	head = NULL;
 }
 
-SymbolTable::addItem(char name, char scope, int permission)
+SymbolTable::addItem(char name*, char* scope, int permission)
 {
-	symbolTable* symTab = new symbolTable(); 
+	//Create new node for symbol table and create a new symbol table item
+	symbolTable* symTab = new symbolTable();
 	symbolTableItem* newItem = new symbolTableItem();
 
 	newItem->name = name;

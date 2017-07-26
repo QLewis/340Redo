@@ -11,7 +11,6 @@
 
 #include "lexer.h"
 #include "inputbuf.h"
-#include "stack.h"
 
 using namespace std;
 
@@ -200,7 +199,7 @@ Token LexicalAnalyzer::GetToken()
     }
 }
 
-int main()
+/*int main()
 {
     LexicalAnalyzer lexer;
     Token token;
@@ -212,4 +211,4 @@ int main()
         token = lexer.GetToken();
         token.Print();
     }
-}
+}*/

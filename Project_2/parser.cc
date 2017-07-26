@@ -28,7 +28,7 @@ Token Parser::peek()
 	return t;
 }
 
-//TODO: START PARSING HERE
+//DONE: START PARSING HERE
 void Parser::parse_program()
 {
 	//program --> global_vars scope
@@ -36,10 +36,13 @@ void Parser::parse_program()
 	parse_scope();
 }//end of parse_program
 
-void Parser::parse_global_vars();
+void Parser::parse_global_vars(); //DONE
 {
 	//global_vars --> epsilon
 	//global_vars --> var_list SEMICOLON
+	
+	//Get the id, set name to ID.lexeme, set scope to ::, set permission to 1
+
 	Token t = lexer.GetToken();
 	if (t.token_type == ID)
 	{
@@ -47,10 +50,18 @@ void Parser::parse_global_vars();
 		if (t2.token_type == COMMA) //var_list SEMICOLON
 		{
 			lexer.UngetToken(t);
-			parse_var_list();
+
+			string varList = parse_var_list();
+
+			//Add items to the symbol table after parsing the variable list
+			for (char & c : varList)
+			{
+				symTab.addItem(c, "::", 1);
+			}
+
 			expect(SEMICOLON);
 		}
-		else if (t2.token_type == LBRACE) //epsilon
+		else if (t2.token_type == LBRACE) //epsilon, the ID was from scope
 		{
 			lexer.UngetToken(t);
 		}
@@ -65,44 +76,83 @@ void Parser::parse_global_vars();
 	}
 }//end of parse_global_vars()
 
-void Parser::parse_var_list()
+
+string Parser::parse_var_list() //DONE
 {
 	//var_list --> ID
 	//var_list --> ID COMMA var_list
-	expect(ID);
-	Token t = peek();
-	if (t.token_type == COMMA) //ID COMMA var_list
-	{
-		expect(COMMA);
-		parse_var_list();
-	}
-	else if (t.token_type == SEMICOLON) //ID
-	{
-		//done
-	}
-	else
+	string tmpString = "";
+	
+	Token t = lexer.GetToken();
+	if (t.token_type != ID)
 	{
 		syntax_error();
 	}
+	else
+	{
+		tmpString += t.lexeme;
+
+		Token t2 = peek();
+
+		if (t2.token_type == COMMA) //ID COMMA var_list
+		{
+			expect(COMMA);
+			parse_var_list
+		}
+		else if (t2.token_type == SEMICOLON) //ID
+		{
+			//done
+		}
+		else
+		{
+			syntax_error();
+		}
+	}
+	return tmpString;
 }//end of parse_var_list
 
-void Parser::parse_scope()
+void Parser::parse_scope() //TODO: double check parse_stmt_list
 {
 	//scope --> ID LBRACE public_vars private_vars stmt_list RBRACE
-	expect(ID);
-	expect(LBRACE);
-	Token t = peek();
-	if (t.token_type == PUBLIC)
+	Token t = lexer.GetToken()
+	if (t.token_type != ID)
 	{
-		parse_public_vars();
+		syntax_error();
+	}
+	else
+	{
+		symTab.currentScope = t.lexeme;
+		expect(LBRACE);
+
 		Token t2 = peek();
-		if (t2.token_type == PRIVATE)
+		if (t2.token_type == PUBLIC)
+		{
+			parse_public_vars();
+
+			Token t3 = peek();
+			if (t3.token-type == PRIVATE)
+			{
+				parse_private_vars();
+				parse_stmt_list();
+				expect(RBRACE);
+			}
+			else if (t3.token_type == ID) //private went to epsilon
+			{
+				parse_stmt_list();
+				expect(RBRACE);
+			}
+			else
+			{
+				syntax_error();
+			}
+		}
+		else if (t2.token_type == PRIVATE) //public went to epsilon
 		{
 			parse_private_vars();
 			parse_stmt_list();
 			expect(RBRACE);
 		}
-		else if (t2.token_type == ID) //private went to epsilon
+		else if (t2.token_type == ID) //public and private went to epsilon
 		{
 			parse_stmt_list();
 			expect(RBRACE);
@@ -112,38 +162,30 @@ void Parser::parse_scope()
 			syntax_error();
 		}
 	}
-	else if (t.token_type == PRIVATE) //public went to epsilon
-	{
-		parse_private_vars();
-		parse_stmt_list();
-		expect(RBRACE);
-	}
-	else if (t.token_type == ID) //public and private went to epsilon
-	{
-		parse_stmt_list();
-		expect(RBRACE);
-	}
-	else
-	{
-		syntax_error();
-	}
 }//end of parse_scope
 
-void Parser::parse_public_vars()
+void Parser::parse_public_vars() //DONE
 {
 	//public_vars --> epsilon
 	//public_vars --> PUBLIC COLON var_list SEMICOLON
+
 	Token t = peek();
-	if (t.token_type == PUBLIC) //public_vars --> PUBLIC COLON var_list SEMICOLON
+	if (t.token_type == PUBLIC)
 	{
 		expect(PUBLIC);
 		expect(COLON);
-		parse_var_list();
+		string varList = parse_var_list();
+
+		for (char & c: varList)
+		{
+			addItem(c, symTab.currentScope, 1);
+		}
+
 		expect(SEMICOLON);
 	}
-	else if (t.token_type == PRIVATE || t.token_type == ID) //public_vars --> epsilon
+	else if (t.token_type == PRIVATE || t.token_type == ID)
 	{
-		//done
+		//public_vars --> epsilon
 	}
 	else
 	{
@@ -151,26 +193,35 @@ void Parser::parse_public_vars()
 	}
 }//end of parse_public_vars
 
-void Parser::parse_private_vars()
+void Parser::parse_private_vars() //DONE
 {
 	//private_vars --> epsilon
 	//private_vars --> PRIVATE COLON var_list SEMICOLON
+
 	Token t = peek();
-	if (t.token_type == PRIVATE) //private_vars --> PRIVATE COLON var_list SEMICOLON
+	if (t.token_type == PRIVATE) // PRIVATE COLON var_list SEMICOLON
 	{
 		expect(PRIVATE);
 		expect(COLON);
-		parse_var_list();
+
+		string varList = parse_var_list();
+
+		for (char & c: varList)
+		{
+			symTab.addItem(c, symTab.currentScope, 0);
+		}
+			
 		expect(SEMICOLON);
 	}
-	else if (t.token_type == ID) //private_vars --> epsilon
+	else if (t.token_type == ID)
 	{
-		//done
+		//private_vars --> epsilon
 	}
 	else
 	{
 		syntax_error();
 	}
+
 }//end of parse_private_vars
 
 void Parser::parse_stmt_list()
