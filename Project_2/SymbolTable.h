@@ -3,18 +3,18 @@
 
 using namespace std;
 
-struct symbolTable
-{
-	symbolTableItem* item;
-	symbolTable* next;
-	symbolTable* previous;
-};
-
 struct symbolTableItem
 {
 	char* name;
 	char* scope;
 	int permission; //1 for public, 0 for private
+};
+
+struct symbolTable
+{
+	symbolTableItem* item;
+	symbolTable* next;
+	symbolTable* previous;
 };
 
 class SymbolTable
@@ -24,8 +24,8 @@ class SymbolTable
 	public:
 		string currentScope;
 		SymbolTable();
-		addItem(char* name, char* scope, int permission);
-		symbolTableItem searchItem(char* name);
+		void addItem(char* name, char* scope, int permission);
+		symbolTableItem* searchItem(char* name);
 };
 
 
@@ -35,7 +35,7 @@ SymbolTable::SymbolTable()
 	head = NULL;
 }
 
-SymbolTable::addItem(char* name, char* scope, int permission)
+void SymbolTable::addItem(char* name, char* scope, int permission)
 {
 	//Create new node for symbol table and create a new symbol table item
 	symbolTable* symTab = new symbolTable();
@@ -67,9 +67,9 @@ SymbolTable::addItem(char* name, char* scope, int permission)
 	}
 }
 
-symbolTableItem SymbolTable::searchItem(char* searchName)
+symbolTableItem* SymbolTable::searchItem(char* searchName)
 {
-	SymbolTable* traverse = head;
+	symbolTable* traverse = head;
 
 	while (traverse->next != NULL) //go to the end of the linked list
 	{

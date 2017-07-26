@@ -10,7 +10,6 @@
 #include <string>
 
 #include "inputbuf.h"
-#include "stack.h"
 // ------- token types -------------------
 
 typedef enum { END_OF_FILE = 0,
@@ -39,7 +38,6 @@ class LexicalAnalyzer {
     int line_no;
     Token tmp;
     InputBuffer input;
-    stack buffer;
 
     bool SkipSpace();
     bool SkipComment();

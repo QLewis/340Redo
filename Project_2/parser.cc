@@ -36,7 +36,7 @@ void Parser::parse_program()
 	parse_scope();
 }//end of parse_program
 
-void Parser::parse_global_vars(); //DONE
+void Parser::parse_global_vars() //DONE
 {
 	//global_vars --> epsilon
 	//global_vars --> var_list SEMICOLON
@@ -51,11 +51,16 @@ void Parser::parse_global_vars(); //DONE
 		{
 			lexer.UngetToken(t);
 
-			string varList = parse_var_list();
+			char* varList = parse_var_list();
 
 			//Add items to the symbol table after parsing the variable list
-			for (char & c : varList)
+			/*for (char & c : varList)
 			{
+				symTab.addItem(c, "::", 1);
+			}*/
+			for (int i = 0; i < sizeof(*varList); i++)
+			{
+				char* c = (char *) varList[i];
 				symTab.addItem(c, "::", 1);
 			}
 
@@ -77,11 +82,11 @@ void Parser::parse_global_vars(); //DONE
 }//end of parse_global_vars()
 
 
-string Parser::parse_var_list() //DONE
+char* Parser::parse_var_list() //DONE
 {
 	//var_list --> ID
 	//var_list --> ID COMMA var_list
-	string tmpString = "";
+	char* tmpString = ' ';
 	
 	Token t = lexer.GetToken();
 	if (t.token_type != ID)
@@ -97,7 +102,7 @@ string Parser::parse_var_list() //DONE
 		if (t2.token_type == COMMA) //ID COMMA var_list
 		{
 			expect(COMMA);
-			parse_var_list
+			parse_var_list();
 		}
 		else if (t2.token_type == SEMICOLON) //ID
 		{
@@ -114,7 +119,7 @@ string Parser::parse_var_list() //DONE
 void Parser::parse_scope() //TODO: double check parse_stmt_list, pop symbole table
 {
 	//scope --> ID LBRACE public_vars private_vars stmt_list RBRACE
-	Token t = lexer.GetToken()
+	Token t = lexer.GetToken();
 	if (t.token_type != ID)
 	{
 		syntax_error();
@@ -130,7 +135,7 @@ void Parser::parse_scope() //TODO: double check parse_stmt_list, pop symbole tab
 			parse_public_vars();
 
 			Token t3 = peek();
-			if (t3.token-type == PRIVATE)
+			if (t3.token_type == PRIVATE)
 			{
 				parse_private_vars();
 				parse_stmt_list();
@@ -175,11 +180,15 @@ void Parser::parse_public_vars() //DONE
 	{
 		expect(PUBLIC);
 		expect(COLON);
-		string varList = parse_var_list();
+		char* varList = parse_var_list();
 
-		for (char & c: varList)
+		/*for (char & c: varList)
 		{
 			addItem(c, symTab.currentScope, 1);
+		}*/
+		for (int i = 0; i < varList.size(); i++)
+		{
+			symTab.addItem(varList[i], symTab.currentScope, 1);
 		}
 
 		expect(SEMICOLON);
@@ -205,11 +214,15 @@ void Parser::parse_private_vars() //DONE
 		expect(PRIVATE);
 		expect(COLON);
 
-		string varList = parse_var_list();
+		char* varList = parse_var_list();
 
-		for (char & c: varList)
+		/*for (char & c: varList)
 		{
 			symTab.addItem(c, symTab.currentScope, 0);
+		}*/
+		for (int i; i < varList.size(); i++)
+		{
+			symTab.addItem(varList[i], symTab.currentScope, 0);
 		}
 			
 		expect(SEMICOLON);
@@ -255,18 +268,18 @@ void Parser::parse_stmt()
 		token t2 = peek();
 		if (t2.token_type == EQUAL) //stmt --> ID EQUAL ID SEMICOLON
 		{
-			symbolTableItem id1 = symTab.searchItem(t.lexeme); //find first variable in the symbol table
+			symbolTableItem* id1 = symTab.searchItem(t.lexeme); //find first variable in the symbol table
 
 			expect(EQUAL);
 
 			Token t3 = lexer.GetToken();
-			if (t3 != ID)
+			if (t3.token_type != ID)
 			{
 				syntax_error();
 			}
 			else
 			{
-				symbolTableItem id2 = symTab.searchItem(t3.lexeme); //find second variable in the symbol table
+				symbolTableItem* id2 = symTab.searchItem(t3.lexeme); //find second variable in the symbol table
 
 				//matching scopes
 				if (id1->scope == id2->scope)
@@ -276,8 +289,8 @@ void Parser::parse_stmt()
 				else
 				{
 					//check if first ID is public or private
-					string id1Str = ""
-					string id2Str = ""
+					string id1Str = "";
+					string id2Str = "";
 
 					if (id1->permission ==  1) //public
 					{

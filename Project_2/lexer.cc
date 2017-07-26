@@ -110,10 +110,7 @@ Token LexicalAnalyzer::ScanIdOrKeyword()
             input.UngetChar(c);
         }
         tmp.line_no = line_no;
-        if (IsKeyword(tmp.lexeme))
-            tmp.token_type = FindKeywordIndex(tmp.lexeme);
-        else
-            tmp.token_type = ID;
+        tmp.token_type = ID;
     } else {
         if (!input.EndOfInput()) {
             input.UngetChar(c);
@@ -184,10 +181,7 @@ Token LexicalAnalyzer::GetToken()
             tmp.token_type = RBRACE;
             return tmp;
         default:
-            if (isdigit(c)) {
-                input.UngetChar(c);
-                return ScanNumber();
-            } else if (isalpha(c)) {
+            if (isalpha(c)) {
                 input.UngetChar(c);
                 return ScanIdOrKeyword();
             } else if (input.EndOfInput())

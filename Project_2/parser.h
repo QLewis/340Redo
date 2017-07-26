@@ -2,6 +2,7 @@
 #define __PARSER_H__
 
 #include <string>
+#include <stdio.h>
 #include "lexer.h"
 #include "SymbolTable.h"
 
@@ -20,7 +21,7 @@ class Parser
 
 		void parse_program();
 		void parse_global_vars();
-		string parse_var_list();
+		char* parse_var_list();
 		void parse_scope();
 		void parse_public_vars();
 		void parse_private_vars();
