@@ -111,7 +111,7 @@ string Parser::parse_var_list() //DONE
 	return tmpString;
 }//end of parse_var_list
 
-void Parser::parse_scope() //TODO: double check parse_stmt_list
+void Parser::parse_scope() //TODO: double check parse_stmt_list, pop symbole table
 {
 	//scope --> ID LBRACE public_vars private_vars stmt_list RBRACE
 	Token t = lexer.GetToken()
@@ -156,6 +156,7 @@ void Parser::parse_scope() //TODO: double check parse_stmt_list
 		{
 			parse_stmt_list();
 			expect(RBRACE);
+			//TODO: pop everything from currentScope out of the symbol table
 		}
 		else
 		{
@@ -254,8 +255,60 @@ void Parser::parse_stmt()
 		token t2 = peek();
 		if (t2.token_type == EQUAL) //stmt --> ID EQUAL ID SEMICOLON
 		{
+			symbolTableItem id1 = symTab.searchItem(t.lexeme); //find first variable in the symbol table
+
 			expect(EQUAL);
-			expect(ID);
+
+			Token t3 = lexer.GetToken();
+			if (t3 != ID)
+			{
+				syntax_error();
+			}
+			else
+			{
+				symbolTableItem id2 = symTab.searchItem(t3.lexeme); //find second variable in the symbol table
+
+				//matching scopes
+				if (id1->scope == id2->scope)
+				{
+					printf(id1->scope + "." + id1->name + "=" + id2->scope + "." + id2->name);
+				}
+				else
+				{
+					//check if first ID is public or private
+					string id1Str = ""
+					string id2Str = ""
+
+					if (id1->permission ==  1) //public
+					{
+						id1Str += id1->scope;
+						id1Str += ".";
+						id1Str += id1->name;
+					}
+					else //private
+					{
+						id1Str += "?";
+						id1Str += ".";
+						id1Str += id1->name;
+					}
+
+					//check if second id is public or private
+					if (id2->permission ==  1) //public
+					{
+						id2Str += id1->scope;
+						id2Str += ".";
+						id2Str += id1->name;
+					}
+					else //private
+					{
+						id2Str += "?";
+						id2Str += ".";
+						id2Str += id1->name;
+					}
+
+					printf(id1Str + "=" + id2Str);
+				}
+			}
 			expect(SEMICOLON);
 		}
 		else if (t2.token_type == LBRACE) //stmt --> scope
