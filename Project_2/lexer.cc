@@ -78,10 +78,10 @@ bool LexicalAnalyzer::SkipComment()
             }
         }
     }
-    if (!input.EndOfInput())
+    /*if (!input.EndOfInput())
     {
         input.UngetChar(c);
-    }
+    }*/
     return comment_encountered;
 }
 

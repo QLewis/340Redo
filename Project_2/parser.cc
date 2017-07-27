@@ -43,16 +43,26 @@ void Parser::parse_global_vars() //DONE
 	
 	//Get the id, set name to ID.lexeme, set scope to ::, set permission to 1
 
+	cout << "inside parse_global_vars" << endl;
+
 	Token t = lexer.GetToken();
+	cout << "global_vars just called GetToken" << endl;
+
 	if (t.token_type == ID)
 	{
+		cout << "t.token_type == ID" << endl;
+		cout << "t.lexeme is " << t.lexeme << endl;
 		Token t2 = peek();
 		if (t2.token_type == COMMA) //var_list SEMICOLON
 		{
+			cout << "t2.token_type == COMMA" << endl;
+
 			symTab.currentScope = "::";
 			symTab.currentPermission = 1;
 
 			lexer.UngetToken(t);
+			cout << "parse_global is calling var_list" << endl;
+
 			parse_var_list();
 
 			expect(SEMICOLON);
@@ -63,6 +73,7 @@ void Parser::parse_global_vars() //DONE
 		}
 		else
 		{
+			cout << "t2.token_type != COMMA nor LBRACE" <<endl;
 			syntax_error();
 		}
 	}
