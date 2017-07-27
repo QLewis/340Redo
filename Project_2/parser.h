@@ -21,7 +21,7 @@ class Parser
 
 		void parse_program();
 		void parse_global_vars();
-		char* parse_var_list();
+		void parse_var_list();
 		void parse_scope();
 		void parse_public_vars();
 		void parse_private_vars();

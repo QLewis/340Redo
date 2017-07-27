@@ -5,8 +5,8 @@ using namespace std;
 
 struct symbolTableItem
 {
-	char* name;
-	char* scope;
+	string name;
+	string scope;
 	int permission; //1 for public, 0 for private
 };
 
@@ -23,9 +23,10 @@ class SymbolTable
 		struct symbolTable* head;
 	public:
 		string currentScope;
+		int currentPermission;
 		SymbolTable();
-		void addItem(char* name, char* scope, int permission);
-		symbolTableItem* searchItem(char* name);
+		void addItem(string name, string scope, int permission);
+		symbolTableItem* searchItem(string name);
 };
 
 
@@ -35,7 +36,7 @@ SymbolTable::SymbolTable()
 	head = NULL;
 }
 
-void SymbolTable::addItem(char* name, char* scope, int permission)
+void SymbolTable::addItem(string name, string scope, int permission)
 {
 	//Create new node for symbol table and create a new symbol table item
 	symbolTable* symTab = new symbolTable();
@@ -67,7 +68,7 @@ void SymbolTable::addItem(char* name, char* scope, int permission)
 	}
 }
 
-symbolTableItem* SymbolTable::searchItem(char* searchName)
+symbolTableItem* SymbolTable::searchItem(string searchName)
 {
 	symbolTable* traverse = head;
 
