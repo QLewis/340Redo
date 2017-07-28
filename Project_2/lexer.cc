@@ -20,6 +20,11 @@ string reserved[] = { "END_OF_FILE",
     "LBRACE", "ID", "ERROR"// DONE: Add labels for new token types here (as string)
 };
 
+#define KEYWORDS_COUNT 2
+string keyword[] = {
+    "public", "private"
+};
+
 void Token::Print()
 {
     cout << "{" << this->lexeme << " , "
@@ -89,44 +94,75 @@ bool LexicalAnalyzer::SkipComment()
     return comment_encountered;
 }
 
+bool LexicalAnalyzer::IsKeyword(string s)
+{
+    for (int i = 0; i < KEYWORDS_COUNT; i++)
+    {
+        if (s == keyword[i])
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+TokenType LexicalAnalyzer::FindKeywordIndex(string s)
+{
+    for (int i = 0; i < KEYWORDS_COUNT; i++)
+    {
+        if (s == keyword[i])
+        {
+            return (TokenType) (i + 1);
+        }
+    }
+    return ERROR;
+}
+
 //DONE: Check for Public and Private here
 Token LexicalAnalyzer::ScanIdOrKeyword()
 {
-    char c;
-    input.GetChar(c);
+    cout << "lexer.cc -- INSIDE SCANIDORKEYWORD\n" << endl;
+   char c;
+   
+   input.GetChar(c);
 
-    if (isalpha(c)) {
+   if (isalpha(c))
+   {
         tmp.lexeme = "";
-        while (!input.EndOfInput() && isalnum(c)) {
+        while (!input.EndOfInput() && isalnum(c))
+        {
             tmp.lexeme += c;
             input.GetChar(c);
         }
-        cout << "lexer.cc -- ScanIdOrKeyword -- outside of while loop\n" << endl;
-        //TODO: check here if lexeme is public or private
-        if(tmp.lexeme == "private")
+        cout << "ScanIdOrKeyword -- outside of while loop\n" << endl;
+        if (!input.EndOfInput())
         {
-            tmp.token_type = PRIVATE;
+            cout << "ScanIdOrKeyword -- !input.EndOfInput\n" << endl;
+            input.UngetChar(c);
+            cout << "ScanIdOrKeyword -- UngetChar(c) put " << c << " back in the input_buffer\n" << endl;
         }
-        if (tmp.lexeme == "public")
+        //This is where the program should check for public and private
+        cout << "ScanIdOrKeyword -- checking if " << tmp.lexeme << " is a keyword\n" << endl;
+        if (IsKeyword(tmp.lexeme))
         {
-            cout << "lexer.cc -- tmp.lexeme == public\n" << endl;
-            tmp.token_type = PUBLIC;
+            cout << "ScanIdOrKeyword -- " << tmp.lexeme << " is a keyword\n" << endl;
+            tmp.token_type = FindKeywordIndex(tmp.lexeme);
         }
-        if (!input.EndOfInput()) {
-            cout << "lexer.cc -- ScanIdOrKeyword -- !input.EndOfInput\n" << endl;
+        else
+        {
+            cout << "ScanIdOrKeyword -- " << tmp.lexeme << " is not a keyword\n" << endl;
+            tmp.token_type = ID;
+        }
+   }
+   else
+   {
+        if (!input.EndOfInput())
+        {
             input.UngetChar(c);
-            cout << "lexer.cc -- UngetChar(c) put " << c << " back in the input_buffer\n"<< endl;
         }
-        //tmp.line_no = line_no;
-        tmp.token_type = ID;
-    } else {
-        if (!input.EndOfInput()) {
-            input.UngetChar(c);
-        }
-        tmp.lexeme = "";
         tmp.token_type = ERROR;
-    }
-    return tmp;
+   }
+   return tmp;
 }
 
 // you should unget tokens in the reverse order in which they

@@ -182,9 +182,9 @@ void Parser::parse_scope() //TODO: double check parse_stmt_list, pop symbole tab
 		}
 		else if (t2.token_type == ID) //public and private went to epsilon
 		{
+			cout << "parse_scope -- neither public nor private -- calling parse_stmt_list\n" << endl;
 			parse_stmt_list();
 			expect(RBRACE);
-			cout << "parse_scope -- neither public nor private -- DONE WITH PARSE_SCOPE\n" << endl;
 			//TODO: pop everything from currentScope out of the symbol table
 		}
 		else
