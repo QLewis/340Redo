@@ -129,7 +129,7 @@ Token LexicalAnalyzer::ScanIdOrKeyword()
    if (isalpha(c))
    {
         tmp.lexeme = "";
-        while (!input.EndOfInput() && isalnum(c))
+        while (!input.EndOfInput() && /*isalnum(c)*/ (isalpha(c) || isdigit(c)))
         {
             tmp.lexeme += c;
             input.GetChar(c);

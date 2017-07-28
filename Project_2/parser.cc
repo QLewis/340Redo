@@ -186,6 +186,8 @@ void Parser::parse_scope() //TODO: double check parse_stmt_list, pop symbole tab
 			parse_stmt_list();
 			expect(RBRACE);
 			//TODO: pop everything from currentScope out of the symbol table
+			cout << "parse_scope -- end of parse_scope, popping the current scope out of the symbole table\n" << endl;
+			symTab.removeScope(currentScope);
 		}
 		else
 		{
@@ -209,15 +211,16 @@ void Parser::parse_public_vars() //DONE
 		parse_var_list();
 
 		expect(SEMICOLON);
-		cout << "parse_public_vars -- DONE WITH PARSE_PUBLIC_VARS\n" << endl;
+		cout << "parse_public_vars -- LEAVING PARSE_PUBLIC_VARS\n" << endl;
 	}
 	else if (t.token_type == PRIVATE || t.token_type == ID)
 	{
 		//public_vars --> epsilon
-		cout << "parse_public_vars went to epsilon -- DONE WITH PARSE_PUBLIC_VARS\n" << endl;
+		cout << "parse_public_vars went to epsilon -- LEAVING PARSE_PUBLIC_VARS\n" << endl;
 	}
 	else
 	{
+		cout << "parse_public_vars -- neither PUBLIC nor EPSILON -- LEAVING PARSE_PUBLIC_VARS\n" << endl;
 		syntax_error();
 	}
 }//end of parse_public_vars
@@ -226,6 +229,7 @@ void Parser::parse_private_vars() //DONE
 {
 	//private_vars --> epsilon
 	//private_vars --> PRIVATE COLON var_list SEMICOLON
+	cout << "parser.cc -- INSIDE PARSE_PRIVATE_VARS\n" << endl;
 
 	Token t = peek();
 	if (t.token_type == PRIVATE) // PRIVATE COLON var_list SEMICOLON
@@ -234,15 +238,20 @@ void Parser::parse_private_vars() //DONE
 		expect(COLON);
 
 		symTab.currentPermission = 0;
+		cout << "parse_private_vars -- calling parse_var_list\n" << endl;
+		parse_var_list();
 			
 		expect(SEMICOLON);
+		cout << "parse_private_vars -- LEAVING PARSE_PRIVATE_VARS\n" << endl;
 	}
 	else if (t.token_type == ID)
 	{
 		//private_vars --> epsilon
+		cout << "parse_private_vars -- went to epsilon -- LEAVING PARSE_PRIVATE_VARS\n" << endl;
 	}
 	else
 	{
+		cout << "parse_private_vars -- t.token_type not ID nor PRIVATE\n" << endl;
 		syntax_error();
 	}
 

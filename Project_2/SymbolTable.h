@@ -26,6 +26,7 @@ class SymbolTable
 		int currentPermission;
 		SymbolTable();
 		void addItem(string name, string scope, int permission);
+		void removeScope(string scopeName);
 		symbolTableItem* searchItem(string name);
 };
 
@@ -66,6 +67,11 @@ void SymbolTable::addItem(string name, string scope, int permission)
 		symTab->next = NULL;
 		symTab->previous = traverse;
 	}
+}
+
+void SymbolTable::removeScope(string scopeName)
+{
+	symbolTable* traverse = head;
 }
 
 symbolTableItem* SymbolTable::searchItem(string searchName)
