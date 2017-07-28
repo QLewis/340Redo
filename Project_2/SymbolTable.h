@@ -72,6 +72,28 @@ void SymbolTable::addItem(string name, string scope, int permission)
 void SymbolTable::removeScope(string scopeName)
 {
 	symbolTable* traverse = head;
+	symbolTable* grab = head;
+
+	while (traverse != NULL)
+	{
+		if (traverse->item->scope == scopeName)
+		{
+			grab =  traverse;
+
+			if (traverse != head) //not at the head
+			{
+				traverse = traverse->previous;
+				traverse->next = grab->next;
+				grab->next->previous = traverse;
+				delete grab;
+			}
+			else
+			{
+				delete grab;
+			}
+		}
+		traverse = traverse->next;
+	}
 }
 
 symbolTableItem* SymbolTable::searchItem(string searchName)

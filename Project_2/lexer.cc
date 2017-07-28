@@ -121,7 +121,6 @@ TokenType LexicalAnalyzer::FindKeywordIndex(string s)
 //DONE: Check for Public and Private here
 Token LexicalAnalyzer::ScanIdOrKeyword()
 {
-    cout << "lexer.cc -- INSIDE SCANIDORKEYWORD\n" << endl;
    char c;
    
    input.GetChar(c);
@@ -134,23 +133,17 @@ Token LexicalAnalyzer::ScanIdOrKeyword()
             tmp.lexeme += c;
             input.GetChar(c);
         }
-        cout << "ScanIdOrKeyword -- outside of while loop\n" << endl;
         if (!input.EndOfInput())
         {
-            cout << "ScanIdOrKeyword -- !input.EndOfInput\n" << endl;
             input.UngetChar(c);
-            cout << "ScanIdOrKeyword -- UngetChar(c) put " << c << " back in the input_buffer\n" << endl;
         }
         //This is where the program should check for public and private
-        cout << "ScanIdOrKeyword -- checking if " << tmp.lexeme << " is a keyword\n" << endl;
         if (IsKeyword(tmp.lexeme))
         {
-            cout << "ScanIdOrKeyword -- " << tmp.lexeme << " is a keyword\n" << endl;
             tmp.token_type = FindKeywordIndex(tmp.lexeme);
         }
         else
         {
-            cout << "ScanIdOrKeyword -- " << tmp.lexeme << " is not a keyword\n" << endl;
             tmp.token_type = ID;
         }
    }
@@ -189,7 +182,6 @@ TokenType LexicalAnalyzer::UngetToken(Token tok)
 
 Token LexicalAnalyzer::GetToken()
 {
-    cout << "lexer.cc -- inside GetToken()\n" << endl;
     char c;
 
     // if there are tokens that were previously
@@ -203,12 +195,10 @@ Token LexicalAnalyzer::GetToken()
 
     SkipSpace();
     SkipComment();
-    cout << "lexer.cc after SkipSpace() and SkipComment()\n" << endl;
 
     tmp.lexeme = "";
     //tmp.line_no = line_no;
     input.GetChar(c);
-    cout << "lexer.cc -- char c is " << c << endl << endl;
     switch (c) {
         case '=':
             tmp.token_type = EQUAL;
@@ -229,7 +219,6 @@ Token LexicalAnalyzer::GetToken()
             tmp.token_type = RBRACE;
             return tmp;
         default:
-            cout << "lexer.cc -- switch case is at default\n" << endl;
             if (isalpha(c)) {
                 input.UngetChar(c);
                 return ScanIdOrKeyword();
