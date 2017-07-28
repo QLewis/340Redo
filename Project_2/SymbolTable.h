@@ -27,7 +27,7 @@ class SymbolTable
 		SymbolTable();
 		void addItem(string name, string scope, int permission);
 		void removeScope(string scopeName);
-		symbolTableItem* searchItem(string name);
+		string searchItem(string name);
 };
 
 
@@ -96,24 +96,51 @@ void SymbolTable::removeScope(string scopeName)
 	}
 }
 
-symbolTableItem* SymbolTable::searchItem(string searchName)
+string SymbolTable::searchItem(string searchName)
 {
 	symbolTable* traverse = head;
+	string tmpString;
 
 	while (traverse->next != NULL) //go to the end of the linked list
 	{
-		traverse = traverse->next;
+		traverse = traverse->next; 
 	}
 
-	//search, started with the most recent node added
+	//search, starting with the most recent node added
 	while (traverse->previous != NULL)
 	{
-		if (traverse->item->name == searchName)
+		if (traverse->item->name == searchName) //If variable with name is found
 		{
-			return traverse->item;
+			if (traverse->item->scope == currentScope) //check that scope matches current scope
+			{
+				if (currentScope == "::")
+				{
+					tmpString = "::";
+				}
+				else
+				{
+					tmpString = currentScope + ".";
+				}
+				return tmpString;
+			}
+			else
+			{
+				if (traverse->item->permission == 1) //check that non-matching scope is public
+				{
+					if (traverse->item->scope == "::")
+					{
+						tmpString = "::";
+					}
+					else
+					{
+						tmpString = traverse->item->scope + ".";
+					}
+					return tmpString;
+				}
+			}
 		}
 		traverse = traverse->previous;
 	}
+	return "?.";
 
-	return NULL; //if nothing is found
 }

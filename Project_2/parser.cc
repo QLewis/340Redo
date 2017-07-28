@@ -99,6 +99,7 @@ void Parser::parse_var_list() //DONE
 		{
 			//done
 			symTab.addItem(t.lexeme, symTab.currentScope, symTab.currentPermission);
+
 		}
 		else
 		{
@@ -247,63 +248,24 @@ void Parser::parse_stmt()
 		Token t2 = peek();
 		if (t2.token_type == EQUAL) //stmt --> ID EQUAL ID SEMICOLON
 		{
-			symbolTableItem* id1 = symTab.searchItem(t.lexeme); //find first variable in the symbol table
+			string leftID = symTab.searchItem(t.lexeme); //get the first variable
 
 			expect(EQUAL);
 
 			Token t3 = lexer.GetToken();
+
 			if (t3.token_type != ID)
 			{
 				syntax_error();
 			}
 			else
 			{
-				symbolTableItem* id2 = symTab.searchItem(t3.lexeme); //find second variable in the symbol table
+				string rightID = symTab.searchItem(t3.lexeme); //get the second variable
 
-				//matching scopes
-				if (id1->scope == id2->scope)
-				{
-					//printf(id1->scope + "." + id1->name + "=" + id2->scope + "." + id2->name);
-					cout << id1->scope << "." << id1->name << "=" << id2->scope << "." << id2->name << endl;
-				}
-				else
-				{
-					//check if first ID is public or private
-					string id1Str = "";
-					string id2Str = "";
+				cout << leftID << t.lexeme << " = " << rightID << t3.lexeme << endl;
 
-					if (id1->permission ==  1) //public
-					{
-						id1Str += id1->scope;
-						id1Str += ".";
-						id1Str += id1->name;
-					}
-					else //private
-					{
-						id1Str += "?";
-						id1Str += ".";
-						id1Str += id1->name;
-					}
-
-					//check if second id is public or private
-					if (id2->permission ==  1) //public
-					{
-						id2Str += id1->scope;
-						id2Str += ".";
-						id2Str += id1->name;
-					}
-					else //private
-					{
-						id2Str += "?";
-						id2Str += ".";
-						id2Str += id1->name;
-					}
-
-					//printf(id1Str + "=" + id2Str);
-					cout << id1Str << "=" << id2Str << endl;
-				}
+				expect(SEMICOLON);
 			}
-			expect(SEMICOLON);
 		}
 		else if (t2.token_type == LBRACE) //stmt --> scope
 		{
