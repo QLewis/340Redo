@@ -24,7 +24,7 @@ class Token {
 
     std::string lexeme;
     TokenType token_type;
-    int line_no;
+    //int line_no;
 };
 
 class LexicalAnalyzer {
@@ -35,7 +35,7 @@ class LexicalAnalyzer {
     //stack buffer
   private:
     std::vector<Token> tokens;
-    int line_no;
+    //int line_no;
     Token tmp;
     InputBuffer input;
 

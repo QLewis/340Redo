@@ -24,14 +24,14 @@ void Token::Print()
 {
     cout << "{" << this->lexeme << " , "
          << reserved[(int) this->token_type] << " , "
-         << this->line_no << "}\n";
+         << /*this->line_no <<*/ "}\n";
 }
 
 LexicalAnalyzer::LexicalAnalyzer()
 {
-    this->line_no = 1;
+    //this->line_no = 1;
     tmp.lexeme = "";
-    tmp.line_no = 1;
+    //tmp.line_no = 1;
     tmp.token_type = ERROR;
 }
 
@@ -42,12 +42,12 @@ bool LexicalAnalyzer::SkipSpace()
     bool space_encountered = false;
 
     input.GetChar(c);
-    line_no += (c == '\n');
+    //line_no += (c == '\n');
 
     while (!input.EndOfInput() && isspace(c)) {
         space_encountered = true;
         input.GetChar(c);
-        line_no += (c == '\n');
+        //line_no += (c == '\n');
     }
 
     if (!input.EndOfInput()) {
@@ -62,21 +62,25 @@ bool LexicalAnalyzer::SkipComment()
     bool comment_encountered = false;
 
     input.GetChar(c);
-    line_no += (c == '\n');
+    //line_no += (c == '\n');
 
     if (c == '/')
     {
         input.GetChar(c);
-        line_no += (c == '\n');
+        //line_no += (c == '\n');
         if (c == '/')
         {
             while (!input.EndOfInput() && (c != '\n'))
             {
                 comment_encountered = true;
                 input.GetChar(c);
-                line_no += (c == '\n');
+                //line_no += (c == '\n');
             }
         }
+    }
+    else
+    {
+        input.UngetChar(c);
     }
     /*if (!input.EndOfInput())
     {
@@ -97,6 +101,7 @@ Token LexicalAnalyzer::ScanIdOrKeyword()
             tmp.lexeme += c;
             input.GetChar(c);
         }
+        cout << "lexer.cc -- ScanIdOrKeyword -- outside of while loop\n" << endl;
         //TODO: check here if lexeme is public or private
         if(tmp.lexeme == "private")
         {
@@ -104,12 +109,15 @@ Token LexicalAnalyzer::ScanIdOrKeyword()
         }
         if (tmp.lexeme == "public")
         {
+            cout << "lexer.cc -- tmp.lexeme == public\n" << endl;
             tmp.token_type = PUBLIC;
         }
         if (!input.EndOfInput()) {
+            cout << "lexer.cc -- ScanIdOrKeyword -- !input.EndOfInput\n" << endl;
             input.UngetChar(c);
+            cout << "lexer.cc -- UngetChar(c) put " << c << " back in the input_buffer\n"<< endl;
         }
-        tmp.line_no = line_no;
+        //tmp.line_no = line_no;
         tmp.token_type = ID;
     } else {
         if (!input.EndOfInput()) {
@@ -139,12 +147,13 @@ Token LexicalAnalyzer::ScanIdOrKeyword()
 //
 TokenType LexicalAnalyzer::UngetToken(Token tok)
 {
-    tokens.push_back(tok);;
+    tokens.push_back(tok);
     return tok.token_type;
 }
 
 Token LexicalAnalyzer::GetToken()
 {
+    cout << "lexer.cc -- inside GetToken()\n" << endl;
     char c;
 
     // if there are tokens that were previously
@@ -158,9 +167,12 @@ Token LexicalAnalyzer::GetToken()
 
     SkipSpace();
     SkipComment();
+    cout << "lexer.cc after SkipSpace() and SkipComment()\n" << endl;
+
     tmp.lexeme = "";
-    tmp.line_no = line_no;
+    //tmp.line_no = line_no;
     input.GetChar(c);
+    cout << "lexer.cc -- char c is " << c << endl << endl;
     switch (c) {
         case '=':
             tmp.token_type = EQUAL;
@@ -181,6 +193,7 @@ Token LexicalAnalyzer::GetToken()
             tmp.token_type = RBRACE;
             return tmp;
         default:
+            cout << "lexer.cc -- switch case is at default\n" << endl;
             if (isalpha(c)) {
                 input.UngetChar(c);
                 return ScanIdOrKeyword();

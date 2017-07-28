@@ -23,7 +23,7 @@ bool InputBuffer::EndOfInput()
 char InputBuffer::UngetChar(char c)
 {
     if (c != EOF)
-        input_buffer.push_back(c);;
+        input_buffer.push_back(c);
     return c;
 }
 
