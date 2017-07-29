@@ -88,7 +88,7 @@ bool LexicalAnalyzer::SkipComment()
             {
                 SkipSpace();
             }
-            //SkipComment();
+            SkipComment();
         }
     }
     else
