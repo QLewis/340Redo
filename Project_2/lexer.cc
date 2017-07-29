@@ -84,6 +84,10 @@ bool LexicalAnalyzer::SkipComment()
                 input.GetChar(c);
                 //line_no += (c == '\n');
             }
+            if (isspace(c))
+            {
+                SkipSpace();
+            }
             //SkipComment();
         }
     }
