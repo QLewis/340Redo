@@ -302,9 +302,21 @@ void Parser::parse_stmt()
 
 				cerr << "parse_stmt -- finished calling searchItem on " << t3.lexeme << endl << endl;
 
-				cout << leftID << t.lexeme << " = " << rightID << t3.lexeme << endl;
+				/*cout << leftID << t.lexeme << " = " << rightID << t3.lexeme << endl;
 
-				expect(SEMICOLON);
+				expect(SEMICOLON);*/
+
+				Token t4 = peek();
+
+				if (t4.token_type == SEMICOLON)
+				{
+					cout << leftID << t.lexeme << " = " << rightID << t3.lexeme << endl;
+					expect(SEMICOLON);
+				}
+				else
+				{
+					syntax_error();
+				}
 			}
 		}
 		else if (t2.token_type == LBRACE) //stmt --> scope
