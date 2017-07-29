@@ -63,10 +63,12 @@ bool LexicalAnalyzer::SkipSpace()
 
 bool LexicalAnalyzer::SkipComment()
 {
+    cerr << "lexer.cc -- INSIDE SKIPCOMMENT\n" << endl;
     char c;
     bool comment_encountered = false;
 
     input.GetChar(c);
+    cerr << "SkipComment -- char c is " << c << endl << endl;
     //line_no += (c == '\n');
 
     if (c == '/')
@@ -75,20 +77,24 @@ bool LexicalAnalyzer::SkipComment()
         //line_no += (c == '\n');
         if (c == '/')
         {
+            cerr << "SkipComment has found a comment\n" << endl;
             while (!input.EndOfInput() && (c != '\n'))
             {
                 comment_encountered = true;
                 input.GetChar(c);
                 //line_no += (c == '\n');
             }
+            //SkipComment();
         }
     }
     else
     {
         input.UngetChar(c);
     }
+
     /*if (!input.EndOfInput())
     {
+        cerr << "SkipComment -- not at end of input, and done with comment\n" << endl;
         input.UngetChar(c);
     }*/
     return comment_encountered;
@@ -182,23 +188,26 @@ TokenType LexicalAnalyzer::UngetToken(Token tok)
 
 Token LexicalAnalyzer::GetToken()
 {
+    cerr << "INSIDE GET TOKEN\n" << endl;
     char c;
-
     // if there are tokens that were previously
     // stored due to UngetToken(), pop a token and
     // return it without reading from input
     if (!tokens.empty()) {
+        cerr << "GetToken -- !tokens.empty() function -- returning " << tmp.lexeme << endl << endl;
         tmp = tokens.back();
         tokens.pop_back();
         return tmp;
     }
-
+    cerr << "lexer.cc -- GetToken -- calling SkipSpace\n" << endl;
     SkipSpace();
+    cerr << "lexer.cc -- GetToken -- calling SkipComment\n" << endl;
     SkipComment();
 
     tmp.lexeme = "";
     //tmp.line_no = line_no;
     input.GetChar(c);
+    cerr << "GetToken -- char c is " << c << endl << endl;
     switch (c) {
         case '=':
             tmp.token_type = EQUAL;

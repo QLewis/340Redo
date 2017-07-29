@@ -71,6 +71,7 @@ void SymbolTable::addItem(string name, string scope, int permission)
 
 void SymbolTable::removeScope(string scopeName)
 {
+	cerr << "SymbolTable.h -- inside removeScope\n" << endl;
 	symbolTable* traverse = head;
 	symbolTable* grab = head;
 
@@ -78,26 +79,38 @@ void SymbolTable::removeScope(string scopeName)
 	{
 		if (traverse->item->scope == scopeName)
 		{
-			grab =  traverse;
-
-			if (traverse != head) //not at the head
+			if (traverse == head) //beginning of linked list
 			{
-				traverse = traverse->previous;
-				traverse->next = grab->next;
-				grab->next->previous = traverse;
+				grab = traverse;
+				head = head->next;
+				traverse = head;
 				delete grab;
 			}
-			else
+			else if (traverse->next == NULL) //end of linked list
 			{
+				grab = traverse;
+				traverse = traverse->next;
+				delete grab;
+			}
+			else//Situation 1
+			{
+				grab = traverse;
+				traverse->previous->next = traverse->next;
+				traverse->next->previous = traverse->previous;
+				traverse = traverse->next;
 				delete grab;
 			}
 		}
-		traverse = traverse->next;
+		else
+		{
+			traverse = traverse->next;
+		}
 	}
 }
 
 string SymbolTable::searchItem(string searchName)
 {
+	cerr << "SymbolTable.h -- INSIDE SEARCHITEM\n" << endl;
 	symbolTable* traverse = head;
 	string tmpString;
 
@@ -107,12 +120,15 @@ string SymbolTable::searchItem(string searchName)
 	}
 
 	//search, starting with the most recent node added
-	while (traverse->previous != NULL)
+	do
 	{
-		if (traverse->item->name == searchName) //If variable with name is found
+		if (traverse->item->name == searchName)
 		{
-			if (traverse->item->scope == currentScope) //check that scope matches current scope
+			cerr << "found " << traverse->item->name << ", " << traverse->item->scope << ", " << traverse->item->permission << endl << endl;
+			if (traverse->item->scope == currentScope)
 			{
+				cerr << "The scope of " << traverse->item->name << " (" << traverse->item->scope << ") matches " << currentScope << endl << endl;
+
 				if (currentScope == "::")
 				{
 					tmpString = "::";
@@ -125,8 +141,9 @@ string SymbolTable::searchItem(string searchName)
 			}
 			else
 			{
-				if (traverse->item->permission == 1) //check that non-matching scope is public
+				if (traverse->item->permission == 1)
 				{
+					cerr << "The scope of " << traverse->item->name << " (" << traverse->item->scope << ")  does not match " << currentScope << " but it is a public variable\n"<< endl;
 					if (traverse->item->scope == "::")
 					{
 						tmpString = "::";
@@ -140,7 +157,8 @@ string SymbolTable::searchItem(string searchName)
 			}
 		}
 		traverse = traverse->previous;
-	}
+
+	} while (traverse != NULL);
 	return "?.";
 
 }
