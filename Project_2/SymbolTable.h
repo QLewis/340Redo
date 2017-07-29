@@ -114,6 +114,11 @@ string SymbolTable::searchItem(string searchName)
 	symbolTable* traverse = head;
 	string tmpString;
 
+	if (head == NULL) //the list is empty
+	{
+		return "?.";
+	}
+
 	while (traverse->next != NULL) //go to the end of the linked list
 	{
 		traverse = traverse->next; 
