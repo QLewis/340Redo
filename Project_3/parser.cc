@@ -82,39 +82,58 @@ void Parser::parse_var_decl()
 	//var_decl --> var_list COLON type_name SEMICOLON
 	parse_var_list();
 	expect(COLON);
-	parse_type_name();
+	string type = parse_type_name();
+
+	symTab.editType(type);
+
 	expect(SEMICOLON);
 }//end of parse_var_decl
 
 void Parser::parse_var_list()
 {
-	expect(ID);
+	cerr << "parser.cc -- INSIDE PARSE_VAR_LIST\n" << endl;
 
-	Token t = peek();
-	if (t.token_type == COMMA)
-	{
-		//ID COMMA var_list
-		expect(COMMA);
-		parse_var_list();
-	}
-	else if (t.token_type == COLON)
-	{
-		//done
-	}
-	else
+	Token t = lexer.GetToken();
+
+	if (t.token_type != ID)
 	{
 		syntax_error();
 	}
+	else
+	{
+		Token t2 = peek();
+
+		if (t2.token_type == COMMA) //ID COMMA var_list
+		{
+			symTab.addItem(t.lexeme, "?");
+
+			cerr << "parse_var_list just added " << t.lexeme << "to the symbol table, adding another variable\n" << endl;
+			expect(COMMA);
+			parse_var_list();
+		}
+		else if (t2.token_type == COLON) //ID
+		{
+			//done
+			symTab.addItem(t.lexeme, "?");
+
+			cerr << "parse_var_list just added " << t.lexeme << "to the symbol table, LEAVING PARSE_VAR_LIST\n" << endl;
+
+		}
+		else
+		{
+			syntax_error();
+		}
+	}
 }//end of parse_var_list
 
-void Parser::parse_type_name()
+string Parser::parse_type_name()
 {
 	//INT | REAL | BOOL
 	Token t = lexer.GetToken();
 
 	if (t.token_type == INT || t.token_type == REAL || t.token_type == BOOL)
 	{
-		//done
+		return t.lexeme;
 	}
 	else
 	{
@@ -198,7 +217,7 @@ void Parser::parse_expression()
 
 	Token t = peek();
 
-	if (t.token_type == ID || t.token_type == NUM || t.token_type == REALNUM || t.token_type == TRUE || t.token_type == FALSE)
+	if (t.token_type == ID || t.token_type == NUM || t.token_type == REALNUM || t.token_type == TR || t.token_type == FA)
 	{
 		parse_primary();
 	}
@@ -254,7 +273,7 @@ void Parser::parse_primary()
 {
 	Token t = lexer.GetToken();
 
-	if (t.token_type == ID || t.token_type == NUM || t.token_type == REALNUM || t.token_type == TRUE || t.token_type == FALSE)
+	if (t.token_type == ID || t.token_type == NUM || t.token_type == REALNUM || t.token_type == TR || t.token_type == FA)
 	{
 		//done
 	}
@@ -313,3 +332,17 @@ void Parser::parse_case()
 {
 
 }//end of parse_case
+
+//END OF PARSING
+void Parser::ParseInput()
+{
+	parse_program();
+	expect(END_OF_FILE);
+}
+
+int main()
+{
+	Parser parser;
+
+	parser.ParseInput();
+}

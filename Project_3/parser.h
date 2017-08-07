@@ -10,16 +10,21 @@ class Parser
 {
 	private:
 		LexicalAnalyzer lexer;
+
 		void syntax_error();
 		Token expect(TokenType expected_type);
 		Token peek();
+
+		SymbolTable symTab;
 	public:
+		void ParseInput();
+
 		void parse_program();
 		void parse_global_vars();
 		void parse_var_decl_list();
 		void parse_var_decl();
 		void parse_var_list();
-		void parse_type_name();
+		string parse_type_name();
 		void parse_body();
 		void parse_stmt_list();
 		void parse_stmt();
